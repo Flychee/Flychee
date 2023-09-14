@@ -20,9 +20,9 @@ def read_file(file):
 def similarity(ori, ori_add):
     ori_sh = sh(ori)
     ori_add_sh = sh(ori_add)
-    max_sh = max(len(bin(ori_sh)), len(bin(ori_add_sh)))
+    max_sh = max(len(bin(ori_sh.value)), len(bin(ori_add_sh.value)))
     dst = ori_sh.distance(ori_add_sh)  # 汉明距离
-    result = 1 - max_sh / dst
+    result = 1 - dst / max_sh
     return result
 
 
