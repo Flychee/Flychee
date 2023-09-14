@@ -1,5 +1,5 @@
 import sys
-import SimHash.SimHash as Sh
+from simhash import Simhash as sh
 import re
 
 
