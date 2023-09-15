@@ -78,5 +78,5 @@ def similarity(ori, ori_add):
 ![](https://dingzhen-bucket.oss-cn-guangzhou.aliyuncs.com/cheese-xuebao/202309151248975.png)  
 # 六、模块部分异常处理说明
 
-项目仅在读写文件时可能出现异常
+项目仅在读写文件时可能出现异常   
 ![](https://dingzhen-bucket.oss-cn-guangzhou.aliyuncs.com/cheese-xuebao/202309151249098.png)
