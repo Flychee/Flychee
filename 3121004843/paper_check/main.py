@@ -1,6 +1,7 @@
 import sys
 from simhash import Simhash as sh
 import re
+import time
 
 
 # 清除Html
@@ -27,6 +28,7 @@ def similarity(ori, ori_add):
 
 
 if __name__ == '__main__':
+    start = time.time()
     if len(sys.argv) != 4:
         print('传入参数个数错误！')
         exit()
@@ -40,3 +42,5 @@ if __name__ == '__main__':
     f = open(ans_file, 'w', encoding="utf-8")
     f.write("文章相似度： %.2f" % similarity_result)
     f.close()
+    end = time.time()
+    print(end - start)
