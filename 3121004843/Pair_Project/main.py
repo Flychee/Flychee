@@ -1,6 +1,7 @@
-import fractions
+from fractions import Fraction
 import random
 import sys
+import operator
 
 
 # 栈
@@ -39,7 +40,7 @@ class BinaryTree:
             self.leftChild = BinaryTree(newNode)
         else:
             t = BinaryTree(newNode)
-            t.left = self.leftChild
+            t.leftChild = self.leftChild
             self.leftChild = t
 
     # 将新节点插入树中作为其直接的右子节点
@@ -48,7 +49,7 @@ class BinaryTree:
             self.rightChild = BinaryTree(newNode)
         else:
             t = BinaryTree(newNode)
-            t.right = self.rightChild
+            t.rightChild = self.rightChild
             self.rightChild = t
 
     # 判断是否为叶节点
@@ -70,3 +71,73 @@ class BinaryTree:
     # 取得并返回根节点的值
     def getRootVal(self):
         return self.key
+
+
+# 表达式树
+def buildTree(expression):
+    fplist = expression.split()
+    print(fplist)
+    pStack = Stack()
+    eTree = BinaryTree('')
+    pStack.push(eTree)
+    temp = eTree
+    for i in fplist:
+        if i == '(':
+            temp.insertLeft('')
+            pStack.push(temp)
+            temp = temp.getLeftChild()
+        elif i not in ['+', '-', '*', '/', ')']:  # 数字
+            temp.setRootVal(int(i))
+            parent = pStack.pop()
+            temp = parent
+        elif i in ['+', '-', '*', '/']:  # 计算符号
+            temp.setRootVal(i)
+            temp.insertRight('')
+            pStack.push(temp)
+            temp = temp.getRightChild()
+        elif i == ')':
+            temp = pStack.pop()
+        else:
+            raise ValueError
+
+    return eTree
+
+
+# 计算求值
+def evaluate(Tree):
+    opers = {'+': operator.add, '-': operator.sub, '*': operator.mul, '/': operator.truediv}
+    leftC = Tree.getLeftChild()
+    rightC = Tree.getRightChild()
+    if leftC and rightC:
+        fn = opers[Tree.getRootVal()]
+        return fn(evaluate(leftC), evaluate(rightC))
+    else:
+        return Tree.getRootVal()
+
+
+# 分数转化
+def Fraction_conversion(fnum):
+    numerator = fnum.numerator
+    denominator = fnum.denominator
+    if numerator // denominator > 1 and denominator != 1:
+        return str(numerator // denominator) + "'" + str(Fraction(numerator % denominator, denominator))
+    else:
+        return str(fnum)
+
+
+# 判断表达式重复
+def check(tree1, tree2):
+    l1 = tree1.leftChild
+    l2 = tree2.leftChild
+    r1 = tree1.rightChild
+    r2 = tree2.rightChild
+
+
+
+
+pt = buildTree("( ( ( 10 + 5 )  + ( 2 * 1 ) ) + ( 3 * 2 ) )")
+b1 = BinaryTree(1)
+b2 = BinaryTree(2)
+print(check(b1, b2))
+print(evaluate(pt))
+print(Fraction_conversion(Fraction(evaluate(pt))))
