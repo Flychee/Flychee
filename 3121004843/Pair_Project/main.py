@@ -76,7 +76,6 @@ class BinaryTree:
 # 表达式树
 def buildTree(expression):
     fplist = expression.split()
-    print(fplist)
     pStack = Stack()
     eTree = BinaryTree('')
     pStack.push(eTree)
@@ -127,17 +126,23 @@ def Fraction_conversion(fnum):
 
 # 判断表达式重复
 def check(tree1, tree2):
-    l1 = tree1.leftChild
-    l2 = tree2.leftChild
-    r1 = tree1.rightChild
-    r2 = tree2.rightChild
+    if not tree1 or not tree2:
+        if not tree1 and not tree2:
+            return True
+        else:
+            return False
+    elif tree1 and tree2:
+        if tree1.key == tree2.key:
+            return (check(tree1.leftChild, tree2.leftChild) and check(tree1.rightChild, tree2.rightChild)) or\
+                   (check(tree1.leftChild, tree2.rightChild) and check(tree1.rightChild, tree2.leftChild))
+        else:
+            return False
 
 
 
+pt1 = buildTree("( 3 + ( 1 + 2 ) )")
+pt2 = buildTree("( ( 2 + 1 ) + 3 )")
 
-pt = buildTree("( ( ( 10 + 5 )  + ( 2 * 1 ) ) + ( 3 * 2 ) )")
-b1 = BinaryTree(1)
-b2 = BinaryTree(2)
-print(check(b1, b2))
-print(evaluate(pt))
-print(Fraction_conversion(Fraction(evaluate(pt))))
+print(check(pt1, pt2))
+print(evaluate(pt1))
+print(Fraction_conversion(Fraction(evaluate(pt2))))
