@@ -216,15 +216,17 @@ def question(argv_n, argv_r):
                 # print(temp_result)
                 # print(Fraction_conversion((evaluate(now))))
         with open('Exercises.txt', 'w') as q:
-            q.writelines([i[2: -2] + '\n' for i in question_result])
+            q.writelines([str(num) + '. ' + i[2: -2] + '\n'
+                          for i, num in zip(question_result, range(1, len(question_result) + 1))])
             q.close()
         with open('Answers.txt', 'w') as a:
-            a.writelines([i + '\n' for i in answer_result])
+            a.writelines([str(num) + '. ' + i + '\n'
+                          for i, num in zip(answer_result, range(1, len(answer_result) + 1))])
             a.close()
         return question_result, answer_result
 
 
-question(50, 10)
+# question(50, 10)
 
 
 # print(line)
@@ -232,6 +234,8 @@ question(50, 10)
 
 # 正确率检查
 def judgement(question_file, answer_file):
+    if not question_file or not answer_file:
+        return False
     data_num = 1
     correct_num = 0
     wrong_num = 0
@@ -239,10 +243,10 @@ def judgement(question_file, answer_file):
     wrong = []
 
     with open(question_file, 'r') as qf:
-        qst = ['( ' + i[: -1] + ' )' for i in qf.readlines()]
+        qst = ['( ' + i[i.find('.') + 2: -1] + ' )' for i in qf.readlines()]
         qf.close()
     with open(answer_file, 'r') as af:
-        asw = [i[: -1] for i in af.readlines()]
+        asw = [i[i.find('.') + 2: -1] for i in af.readlines()]
         af.close()
     check_data = [Fraction_conversion((evaluate(buildTree(q)))['data']) for q in qst]
 
@@ -260,9 +264,20 @@ def judgement(question_file, answer_file):
     return True
 
 
-judgement('Exercises.txt', 'Answers.txt')
+# judgement('Exercises.txt', 'Answers.txt')
 
 
 # 主函数
-#
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-r', "--radius", type=int, default=10)
+    parser.add_argument('-n', "--num", type=int, default=10)
+    parser.add_argument('-e', "--exercise", type=str)
+    parser.add_argument('-a', "--answer", type=str)
+    args = parser.parse_args()
+    question(args.num, args.radius)
+    judgement(args.exercise, args.answer)
 
+
+if __name__ == '__main__':
+    main()
