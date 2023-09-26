@@ -2,6 +2,7 @@ from fractions import Fraction
 import random
 import sys
 import operator
+import argparse
 
 
 # 栈
@@ -109,9 +110,16 @@ def evaluate(Tree):
     rightC = Tree.getRightChild()
     if leftC and rightC:
         fn = opers[Tree.getRootVal()]
-        return fn(Fraction(evaluate(leftC)), Fraction(evaluate(rightC)))
+        el = evaluate(leftC)
+        er = evaluate(rightC)
+        answer_data = fn(Fraction(el['data']), Fraction(er['data']))
+
+        # 递归中布尔值为False则出现负数结果
+        answer = {'data': answer_data,
+                  'point': (True if answer_data > 0 else False) and el['point'] and er['point']}
+        return answer
     else:
-        return Tree.getRootVal()
+        return {'data': Tree.getRootVal(), 'point': True}
 
 
 # 分数转化
@@ -180,36 +188,81 @@ def question(argv_n, argv_r):
     else:
         oper = ['+', '-', '*', '/']
         num_random = random.randrange
-        result = []
-        num = 1
-        while num <= argv_n:
+        question_result = []
+        answer_result = []
+        num = 0
+        while num < argv_n:
             temp = str(num_random(1, argv_r))
             oper_num = num_random(1, 4)
-            point = False
+            # point = False
             for on in range(oper_num):
                 ro = random.choice(oper)
                 nr = num_random(1, argv_r)
-                if ro == '-':
-                    if int(temp[-1]) < nr:
-                        point = True
-                    else:
-                        temp = temp + ' ' + ro + ' ' + str(nr)
-                else:
-                    temp = temp + ' ' + ro + ' ' + str(nr)
+                temp = temp + ' ' + ro + ' ' + str(nr)
 
-            if not point:
-                temp_result = cal_seq(temp)
-                add_point = True
-                now = buildTree(temp_result)
-                if num != 1:
-                    for r in result:
-                        before = buildTree(r)
-                        add_point = add_point and (not check(before, now))
-                if add_point:
-                    num += 1
-                    result.append(temp_result)
-                    # print(temp_result)
-                    # print(Fraction_conversion((evaluate(now))))
-        return result
+            temp_result = cal_seq(temp)
+            add_point = True
+            now = buildTree(temp_result)
+            now_answer = evaluate(now)
+            # print(now_answer)
+            if num != 0:
+                for qr in question_result:
+                    before = buildTree(qr)
+                    add_point = add_point and (not check(before, now))
+            if add_point and now_answer['point']:
+                num += 1
+                question_result.append(temp_result)
+                answer_result.append(Fraction_conversion(now_answer['data']))
+                # print(temp_result)
+                # print(Fraction_conversion((evaluate(now))))
+        with open('question.txt', 'w') as q:
+            q.writelines([i[2: -2] + '\n' for i in question_result])
+            q.close()
+        with open('answer.txt', 'w') as a:
+            a.writelines([i + '\n' for i in answer_result])
+            a.close()
+        return question_result, answer_result
 
-# question(20, 40)
+
+# question(50, 10)
+
+
+# print(line)
+
+
+# 正确率检查
+def judgement(question_file, answer_file):
+    data_num = 1
+    correct_num = 0
+    wrong_num = 0
+    correct = []
+    wrong = []
+
+    with open(question_file, 'r') as qf:
+        qst = ['( ' + i[: -1] + ' )' for i in qf.readlines()]
+        qf.close()
+    with open(answer_file, 'r') as af:
+        asw = [i[: -1] for i in af.readlines()]
+        af.close()
+    check_data = [Fraction_conversion((evaluate(buildTree(q)))['data']) for q in qst]
+
+    for cd, a in zip(check_data, asw):
+        if cd == a:
+            correct_num += 1
+            correct.append(data_num)
+        else:
+            wrong_num += 1
+            wrong.append(data_num)
+        data_num += 1
+    with open('Grade.txt', 'w') as g:
+        g.writelines(['Correct:' + str(correct_num) + '(' + str(correct)[1: -1] + ')' + '\n',
+                      'Wrong:' + str(wrong_num) + '(' + str(wrong)[1: -1] + ')' + '\n'])
+    return True
+
+
+# judgement('question.txt', 'answer.txt')
+
+
+# 主函数
+#
+
