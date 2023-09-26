@@ -215,16 +215,16 @@ def question(argv_n, argv_r):
                 answer_result.append(Fraction_conversion(now_answer['data']))
                 # print(temp_result)
                 # print(Fraction_conversion((evaluate(now))))
-        with open('question.txt', 'w') as q:
+        with open('Exercises.txt', 'w') as q:
             q.writelines([i[2: -2] + '\n' for i in question_result])
             q.close()
-        with open('answer.txt', 'w') as a:
+        with open('Answers.txt', 'w') as a:
             a.writelines([i + '\n' for i in answer_result])
             a.close()
         return question_result, answer_result
 
 
-# question(50, 10)
+question(50, 10)
 
 
 # print(line)
@@ -260,7 +260,7 @@ def judgement(question_file, answer_file):
     return True
 
 
-# judgement('question.txt', 'answer.txt')
+judgement('Exercises.txt', 'Answers.txt')
 
 
 # 主函数
