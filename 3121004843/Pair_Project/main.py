@@ -78,7 +78,7 @@ class BinaryTree:
 def Fraction_conversion(fnum):
     numerator = fnum.numerator
     denominator = fnum.denominator
-    if numerator // denominator > 1 and denominator != 1:
+    if numerator // denominator >= 1 and denominator != 1:
         return str(numerator // denominator) + "'" + str(Fraction(numerator % denominator, denominator))
     else:
         return str(fnum)
