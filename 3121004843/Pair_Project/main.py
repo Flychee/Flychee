@@ -200,9 +200,9 @@ def num_random(radius):
     integer_random = random.randrange
     mark_random = random.random
     r = random.random()
-    result = Fraction(integer_random(1, radius)).limit_denominator(100)
+    result = Fraction(integer_random(1, radius)).limit_denominator(radius)
     if r < 0.5:
-        result += Fraction(round(mark_random(), 2)).limit_denominator(100)
+        result += Fraction(round(mark_random(), 2)).limit_denominator(radius)
     return result
 
 
