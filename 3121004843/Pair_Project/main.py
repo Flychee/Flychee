@@ -74,6 +74,25 @@ class BinaryTree:
         return self.key
 
 
+# 分数转化字符串
+def Fraction_conversion(fnum):
+    numerator = fnum.numerator
+    denominator = fnum.denominator
+    if numerator // denominator > 1 and denominator != 1:
+        return str(numerator // denominator) + "'" + str(Fraction(numerator % denominator, denominator))
+    else:
+        return str(fnum)
+
+
+# 字符串转化分数
+def str_conversion(string):
+    num_string = string.split("'")
+    if len(num_string) == 2:
+        return Fraction(num_string[0]) + Fraction(num_string[1])
+    else:
+        return Fraction(num_string[0])
+
+
 # 表达式树
 def buildTree(expression):
     fplist = expression.split()
@@ -86,11 +105,11 @@ def buildTree(expression):
             temp.insertLeft('')
             pStack.push(temp)
             temp = temp.getLeftChild()
-        elif i not in ['+', '-', '*', '/', ')']:  # 数字
-            temp.setRootVal(int(i))
+        elif i not in ['+', '-', '*', '÷', ')']:  # 数字
+            temp.setRootVal(str_conversion(i))
             parent = pStack.pop()
             temp = parent
-        elif i in ['+', '-', '*', '/']:  # 计算符号
+        elif i in ['+', '-', '*', '÷']:  # 计算符号
             temp.setRootVal(i)
             temp.insertRight('')
             pStack.push(temp)
@@ -105,14 +124,17 @@ def buildTree(expression):
 
 # 计算求值
 def evaluate(Tree):
-    opers = {'+': operator.add, '-': operator.sub, '*': operator.mul, '/': operator.truediv}
+    opers = {'+': operator.add, '-': operator.sub, '*': operator.mul, '÷': operator.truediv}
     leftC = Tree.getLeftChild()
     rightC = Tree.getRightChild()
     if leftC and rightC:
         fn = opers[Tree.getRootVal()]
         el = evaluate(leftC)
         er = evaluate(rightC)
-        answer_data = fn(Fraction(el['data']), Fraction(er['data']))
+        if fn == opers['÷'] and er['data'] == 0:
+            answer_data = -1
+        else:
+            answer_data = fn(Fraction(el['data']), Fraction(er['data']))
 
         # 递归中布尔值为False则出现负数结果
         answer = {'data': answer_data,
@@ -120,16 +142,6 @@ def evaluate(Tree):
         return answer
     else:
         return {'data': Tree.getRootVal(), 'point': True}
-
-
-# 分数转化
-def Fraction_conversion(fnum):
-    numerator = fnum.numerator
-    denominator = fnum.denominator
-    if numerator // denominator > 1 and denominator != 1:
-        return str(numerator // denominator) + "'" + str(Fraction(numerator % denominator, denominator))
-    else:
-        return str(fnum)
 
 
 # 判断表达式重复
@@ -141,6 +153,7 @@ def check(tree1, tree2):
             return False
     elif tree1 and tree2:
         if tree1.key == tree2.key:
+
             return (check(tree1.leftChild, tree2.leftChild) and check(tree1.rightChild, tree2.rightChild)) or \
                    (check(tree1.leftChild, tree2.rightChild) and check(tree1.rightChild, tree2.leftChild))
         else:
@@ -181,40 +194,57 @@ def cal_seq(expression):
     return ' '.join(left + result + right)
 
 
+# 数字生成
+def num_random(radius):
+    result = 0
+    integer_random = random.randrange
+    mark_random = random.random
+    r = random.random()
+    result = Fraction(integer_random(1, radius)).limit_denominator(100)
+    if r < 0.5:
+        result += Fraction(round(mark_random(), 2)).limit_denominator(100)
+    return result
+
+
 # 字符串生成
 def question(argv_n, argv_r):
+    if not argv_n or not argv_r:
+        return
     if argv_r <= 0 or argv_n <= 0:
         raise ValueError
     else:
-        oper = ['+', '-', '*', '/']
-        num_random = random.randrange
+        oper = ['+', '-', '*', '÷']
+
         question_result = []
         answer_result = []
+        check_result = []
         num = 0
+        wrong_point = False
         while num < argv_n:
-            temp = str(num_random(1, argv_r))
-            oper_num = num_random(1, 4)
+            temp = str(random.randrange(1, argv_r))
+            oper_num = random.randrange(1, 4)
             # point = False
             for on in range(oper_num):
                 ro = random.choice(oper)
-                nr = num_random(1, argv_r)
-                temp = temp + ' ' + ro + ' ' + str(nr)
+                nr = Fraction_conversion(num_random(argv_r))
+                temp = temp + ' ' + ro + ' ' + nr
 
             temp_result = cal_seq(temp)
             add_point = True
             now = buildTree(temp_result)
             now_answer = evaluate(now)
             # print(now_answer)
-            if num != 0:
-                for qr in question_result:
-                    before = buildTree(qr)
-                    add_point = add_point and (not check(before, now))
-            if add_point and now_answer['point']:
-                num += 1
-                question_result.append(temp_result)
-                answer_result.append(Fraction_conversion(now_answer['data']))
-                # print(temp_result)
-                # print(Fraction_conversion((evaluate(now))))
+            if now_answer['point']:
+                if num != 0:
+                    for cr in check_result:
+                        add_point = add_point and (not check(cr, now))
+                if add_point:
+                    num += 1
+                    question_result.append(temp_result)
+                    answer_result.append(Fraction_conversion(now_answer['data']))
+                    check_result.append(now)
+                    # print(temp_result)
+                    # print(Fraction_conversion((evaluate(now))))
         with open('Exercises.txt', 'w') as q:
             q.writelines([str(num) + '. ' + i[2: -2] + '\n'
                           for i, num in zip(question_result, range(1, len(question_result) + 1))])
@@ -270,8 +300,8 @@ def judgement(question_file, answer_file):
 # 主函数
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-r', "--radius", type=int, default=10)
-    parser.add_argument('-n', "--num", type=int, default=10)
+    parser.add_argument('-r', "--radius", type=int)
+    parser.add_argument('-n', "--num", type=int)
     parser.add_argument('-e', "--exercise", type=str)
     parser.add_argument('-a', "--answer", type=str)
     args = parser.parse_args()
